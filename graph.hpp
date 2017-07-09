@@ -32,7 +32,7 @@ class Vertex {
 
 template<typename T, typename U>
 class Edge {
-	int beg, end; // begin vertex, end vertex
+	Vertex<T> beg, end; // begin vertex, end vertex
 	int flag; // there is or no edge with a sign (if oriented)
 	U cost; // a characteristic of an edge
 
@@ -46,8 +46,8 @@ class Edge {
 	Edge<T, U>& operator=(const Edge<T, U>&);
 	Edge<T, U>& operator=(Edge<T, U>&&);
 
-	int get_beg() const;
-	int get_end() const;
+	Vertex<T> get_beg() const;
+	Vertex<T> get_end() const;
 	int get_flag() const;
 	U get_cost() const;
 };
@@ -56,6 +56,8 @@ class Edge {
 template<typename T, typename U>
 class Graph {
 	int v_num, e_num; // number of vertexes, number of edges
+	int oriented = 0; // if the graph is oriented
+	int weighed = 0; // if the graph is weighed
 	std::vector<Edge<T, U>> edges; // vector of edges
 	U** adj; // adjacency matrix
 	int** inc; // incidence matrix
@@ -72,6 +74,7 @@ class Graph {
 	Graph<T, U>& operator=(const Graph<T, U>&);
 	Graph<T, U>& operator=(Graph<T, U>&&);
 
+	void to_dot() const;
 	void print_graph() const;
 
 	int get_v_num() const;
@@ -87,7 +90,8 @@ class Graph {
 // default constructor
 template<typename T>
 Vertex<T>::Vertex() {
-	// ??????
+	num = 0;
+	//property = 0;
 }
 
 template<typename T>
@@ -96,19 +100,6 @@ Vertex<T>::Vertex(int num_, T property_) : num(num_), property(property_) {}
 // copy constructor
 template<typename T>
 Vertex<T>::Vertex(const Vertex<T>& other) : num(other.num), property(other.property) {}
-
-// move constructor
-template<typename T>
-Vertex<T>::Vertex(Vertex<T>&& other) : num(other.num), property(property) {
-	other.num = 0; // ?
-	other.property = nullptr; // ?
-}
-
-template<typename T>
-Vertex<T>::~Vertex() {
-	// ?
-	// ?
-}
 
 // copy assignment
 template<typename T>
@@ -121,6 +112,13 @@ Vertex<T>& Vertex<T>::operator=(const Vertex<T>& other) {
 	return *this;
 }
 
+// move constructor
+template<typename T>
+Vertex<T>::Vertex(Vertex<T>&& other) : num(other.num), property(property) {
+	other.num = 0;
+	// other.property = ?
+}
+
 // move assignment
 template<typename T>
 Vertex<T>& Vertex<T>::operator=(Vertex<T>&& other) {
@@ -129,10 +127,15 @@ Vertex<T>& Vertex<T>::operator=(Vertex<T>&& other) {
 		property = other.property;
 
 		other.num = 0;
-		other.property = nullptr;
+		// other.property = ?
 	}
 
 	return *this;
+}
+
+template<typename T>
+Vertex<T>::~Vertex() {
+	num = 0;
 }
 
 // getters
@@ -149,32 +152,18 @@ T Vertex<T>::get_property() const { return property; }
 // default constructor
 template<typename T, typename U>
 Edge<T, U>::Edge() {
-	//??????
+	beg();
+	end();
+	flag = 0;
+	cost = 0;
 }
 
 template<typename T, typename U>
-Edge<T, U>::Edge(Vertex<T>& beg_, Vertex<T>& end_, int flag_, U cost_) : beg(beg_.get_num()), end(end_.get_num()), flag(flag_), cost(cost_) {}
+Edge<T, U>::Edge(Vertex<T>& beg_, Vertex<T>& end_, int flag_, U cost_) : beg(beg_), end(end_), flag(flag_), cost(cost_) {}
 	
 // copy constructor
 template<typename T, typename U>
 Edge<T, U>::Edge(const Edge<T, U>& other) : beg(other.beg), end(other.end), flag(other.flag), cost(other.cost) {}
-
-// move constructor
-template<typename T, typename U>
-Edge<T, U>::Edge(Edge<T, U>&& other) : beg(other.beg), end(other.end), flag(other.flag), cost(other.cost) {
-	other.beg = 0; // ?
-	other.end = 0; // ?
-	other.flag = 0; // ?
-	other.cost = 0; // ?
-}
-
-template<typename T, typename U>
-Edge<T, U>::~Edge() {
-	beg = 0; // ?
-	end = 0; // ?
-	flag = 0; // ?
-	cost = 0; // ?
-}
 
 // copy assignment
 template<typename T, typename U>
@@ -189,6 +178,15 @@ Edge<T, U>& Edge<T, U>::operator=(const Edge<T, U>& other) {
     return *this;
 }
 
+// move constructor
+template<typename T, typename U>
+Edge<T, U>::Edge(Edge<T, U>&& other) : beg(other.beg), end(other.end), flag(other.flag), cost(other.cost) {
+	// other.beg = ?
+	// other.end = ?
+	other.flag = 0;
+	other.cost = 0;
+}
+
 // move assignment
 template<typename T, typename U>
 Edge<T, U>& Edge<T, U>::operator=(Edge<T, U>&& other) {
@@ -198,8 +196,8 @@ Edge<T, U>& Edge<T, U>::operator=(Edge<T, U>&& other) {
    		flag = other.flag;
    		cost = other.cost;
 
-   		other.beg = 0;
-		other.end = 0;
+   		// other.beg = ?
+		// other.end = ?
 		other.flag = 0;
 		other.cost = 0;
 	}
@@ -208,10 +206,18 @@ Edge<T, U>& Edge<T, U>::operator=(Edge<T, U>&& other) {
 }	
 
 template<typename T, typename U>
-int Edge<T, U>::get_beg() const { return beg; }
+Edge<T, U>::~Edge() {
+	// beg = ?
+	// end = ?
+	flag = 0;
+	cost = 0;
+}
 
 template<typename T, typename U>
-int Edge<T, U>::get_end() const { return end; }
+Vertex<T> Edge<T, U>::get_beg() const { return beg; }
+
+template<typename T, typename U>
+Vertex<T> Edge<T, U>::get_end() const { return end; }
 
 template<typename T, typename U>
 int Edge<T, U>::get_flag() const { return flag; }
@@ -238,10 +244,12 @@ Graph<T, U>::Graph(std::vector<Edge<T, U>>& edges_) : edges(edges_) {
 	// count v_num and e_num from edges vector
 	int max = 0;
 	for (unsigned i = 0; i < edges.size(); i++) {
-		if (edges[i].get_beg() > max)
-			max = edges[i].get_beg();
-		if (edges[i].get_end() > max)
-			max = edges[i].get_end();
+		if (edges[i].get_beg().get_num() > max)
+			max = edges[i].get_beg().get_num();
+		if (edges[i].get_end().get_num() > max)
+			max = edges[i].get_end().get_num();
+		if (edges[i].get_flag() == -1 || edges[i].get_flag() == -1)
+			oriented = 1;
 	}
 	v_num = max;
 	e_num = edges.size();
@@ -259,8 +267,10 @@ Graph<T, U>::Graph(std::vector<Edge<T, U>>& edges_) : edges(edges_) {
 		}
 
 	for (unsigned i = 0; i < edges.size(); i++) {
-		adj[edges[i].get_beg() - 1][edges[i].get_end() - 1] = edges[i].get_cost();
-		adj[edges[i].get_end() - 1][edges[i].get_beg() - 1] = edges[i].get_cost();
+		adj[edges[i].get_beg().get_num() - 1][edges[i].get_end().get_num() - 1] = edges[i].get_cost();
+		adj[edges[i].get_end().get_num() - 1][edges[i].get_beg().get_num() - 1] = edges[i].get_cost();
+		if (edges[i].get_cost() != 0)
+			weighed = 1;
 	}
 
 	// create incidence matrix
@@ -274,8 +284,8 @@ Graph<T, U>::Graph(std::vector<Edge<T, U>>& edges_) : edges(edges_) {
 			inc[i][j] = 0;
 
 	for (unsigned i = 0; i < edges.size(); i++) {
-		inc[i][edges[i].get_beg() - 1] = edges[i].get_flag();
-		inc[i][edges[i].get_end() - 1] = -edges[i].get_flag();
+		inc[i][edges[i].get_beg().get_num() - 1] = edges[i].get_flag();
+		inc[i][edges[i].get_end().get_num() - 1] = -edges[i].get_flag();
 	}
 }
 
@@ -307,43 +317,15 @@ Graph<T, U>::Graph(const Graph<T, U>& other) : v_num(other.v_num), e_num(other.e
 			inc[i][j] = other.inc[i][j];
 }
 
-// move constructor
-template<typename T, typename U>
-Graph<T, U>::Graph(Graph<T, U>&& other) : v_num(other.v_num), e_num(other.e_num), edges(other.edges), adj(other.adj), inc(other.inc) {
-	other.v_num = 0;
-	other.e_num = 0;
-	other.edges = nullptr;
-	other.adj = nullptr;
-	other.inc = nullptr;
-}
-
-template<typename T, typename U>
-Graph<T, U>::~Graph() {
-	cleanup(); // ?
-}
-
-template<typename T, typename U>
-void Graph<T, U>::cleanup() {
-	edges.clear();
-
-	if (adj)
-   		delete[] adj[0];
-	delete[] adj;
-
-	if (inc)
-   		delete[] inc[0];
-	delete[] inc;
-}
-		
 // copy assignment
 template<typename T, typename U>	
 Graph<T, U>& Graph<T, U>::operator=(const Graph& other) {
-	if (this != &other) { // compare ptrs, not objects
+	if (this != &other) {
    		cleanup();
    		v_num = other.v_num;
    		e_num = other.e_num;
 
-   		for (int i = 1; i < edges.size(); i++)
+   		for (unsigned i = 1; i < edges.size(); i++)
 			edges.push_back(edges[i]);
 
    		// adjacency matrix
@@ -370,10 +352,20 @@ Graph<T, U>& Graph<T, U>::operator=(const Graph& other) {
 	return *this;
 }
 
+// move constructor
+template<typename T, typename U>
+Graph<T, U>::Graph(Graph<T, U>&& other) : v_num(other.v_num), e_num(other.e_num), edges(other.edges), adj(other.adj), inc(other.inc) {
+	other.v_num = 0;
+	other.e_num = 0;
+	other.edges = nullptr;
+	other.adj = nullptr;
+	other.inc = nullptr;
+}
+
 // move assignment
 template<typename T, typename U>
 Graph<T, U>& Graph<T, U>::operator=(Graph&& other) {
-	if (this != &other) { // compare ptrs, not objects
+	if (this != &other) {
    		cleanup();
    		
   		v_num = other.v_num;
@@ -388,6 +380,70 @@ Graph<T, U>& Graph<T, U>::operator=(Graph&& other) {
 	}
 
 	return *this;
+}
+
+template<typename T, typename U>
+Graph<T, U>::~Graph() {
+	cleanup();
+}
+
+template<typename T, typename U>
+void Graph<T, U>::cleanup() {
+	edges.clear();
+
+	if (adj)
+   		delete[] adj[0];
+	delete[] adj;
+
+	if (inc)
+   		delete[] inc[0];
+	delete[] inc;
+}
+
+template<typename T, typename U>
+void Graph<T, U>::to_dot() const {
+	assert(this);
+	
+	ofstream fout("graph.dot");
+
+    if (!oriented) {
+    	fout << "graph graphname {" << endl;
+
+    	for (unsigned i = 0; i < edges.size(); i++)
+	    	fout << "\t" << edges[i].get_beg().get_num() << " [color=\"" << edges[i].get_beg().get_property() << "\"];" << endl;
+	    fout << endl;
+
+    	for (unsigned i = 0; i < edges.size(); i++) {
+    		if (edges[i].get_flag()) {
+    			fout << "\t" << edges[i].get_beg().get_num() << " -- " << edges[i].get_end().get_num();
+	    		if (weighed)
+	    			fout << " [label=\"" << edges[i].get_cost() << "\"]";
+	    		fout << ";" << endl;
+	    	}
+    	}
+    }
+    else {
+    	fout << "digraph graphname {" << endl;
+    	
+    	for (unsigned i = 0; i < edges.size(); i++)
+	    	fout << "\t" << edges[i].get_beg().get_num() << " [color=\"" << edges[i].get_beg().get_property() << "\"];" << endl;
+	    fout << endl;
+
+    	for (unsigned i = 0; i < edges.size(); i++) {
+    		if (edges[i].get_flag()) {
+	    		if (edges[i].get_flag() == 1)
+	    			fout << "\t"  << edges[i].get_beg().get_num() << " -> " << edges[i].get_end().get_num();
+	    		else if (edges[i].get_flag() == -1)
+	    			fout << "\t"  << edges[i].get_end().get_num() << " -> " << edges[i].get_beg().get_num();
+	    		if (weighed)
+	    			fout << " [label=\"" << edges[i].get_cost() << "\"]";
+	    		fout << ";"<< endl;
+    		}
+    	}
+    }
+    fout << "}" << endl;
+
+    fout.close();
 }
 
 template<typename T, typename U>
