@@ -114,9 +114,9 @@ Vertex<T>& Vertex<T>::operator=(const Vertex<T>& other) {
 
 // move constructor
 template<typename T>
-Vertex<T>::Vertex(Vertex<T>&& other) : num(other.num), property(property) {
+Vertex<T>::Vertex(Vertex<T>&& other) : num(other.num), property(other.property) {
 	other.num = 0;
-	// other.property = ?
+	//other.property = ?
 }
 
 // move assignment
@@ -402,8 +402,10 @@ void Graph<T, U>::to_dot() const {
     if (!oriented) {
     	fout << "graph graphname {" << endl;
 
-    	for (unsigned i = 0; i < edges.size(); i++)
+    	for (unsigned i = 0; i < edges.size(); i++) {
 	    	fout << "\t" << edges[i].get_beg().get_num() << " [color=\"" << edges[i].get_beg().get_property() << "\"];" << endl;
+	    	fout << "\t" << edges[i].get_end().get_num() << " [color=\"" << edges[i].get_end().get_property() << "\"];" << endl;
+    	}
 	    fout << endl;
 
     	for (unsigned i = 0; i < edges.size(); i++) {
@@ -418,8 +420,10 @@ void Graph<T, U>::to_dot() const {
     else {
     	fout << "digraph graphname {" << endl;
     	
-    	for (unsigned i = 0; i < edges.size(); i++)
+    	for (unsigned i = 0; i < edges.size(); i++) {
 	    	fout << "\t" << edges[i].get_beg().get_num() << " [color=\"" << edges[i].get_beg().get_property() << "\"];" << endl;
+	   		fout << "\t" << edges[i].get_end().get_num() << " [color=\"" << edges[i].get_end().get_property() << "\"];" << endl;
+    	}
 	    fout << endl;
 
     	for (unsigned i = 0; i < edges.size(); i++) {
