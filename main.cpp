@@ -35,5 +35,18 @@ int main() {
 
 	edges.clear();
 
+// TEST:
+	cout << "TEST of move:" << endl;
+	cout << "v2 before move ctor:   " << v2.get_num() << " " << v2.get_property() << endl;
+	Vertex<string> v8(std::move(v2));
+	cout << "v2 after move ctor:    " << v2.get_num() << " " << v2.get_property() << endl;
+	cout << "v8 = move ctor of v1:  " << v8.get_num() << " " << v8.get_property() << endl;
+
+	cout << endl;
+	cout << "v4 before move= :      " << v4.get_num() << " " << v4.get_property() << endl;
+	Vertex<string> v10 = std::move(v4);
+	cout << "v4 after move= :       " << v4.get_num() << " " << v4.get_property() << endl;
+	cout << "v10 = move= of v4:     " << v10.get_num() << " " << v10.get_property() << endl;
+
 	return 0;
 }
