@@ -29,8 +29,9 @@ int main() {
 	edges.push_back(e8);
 
 	Graph<string, int> a(edges);
-
+	
 	a.print_graph();
+	a.to_dot();
 
 	edges.clear();
 
