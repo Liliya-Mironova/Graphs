@@ -91,7 +91,7 @@ class Graph {
 template<typename T>
 Vertex<T>::Vertex() {
 	num = 0;
-	//property = 0;
+	property = 0;
 }
 
 template<typename T>
@@ -134,9 +134,7 @@ Vertex<T>& Vertex<T>::operator=(Vertex<T>&& other) {
 }
 
 template<typename T>
-Vertex<T>::~Vertex() {
-	num = 0;
-}
+Vertex<T>::~Vertex() {}
 
 // getters
 template<typename T>
@@ -206,12 +204,7 @@ Edge<T, U>& Edge<T, U>::operator=(Edge<T, U>&& other) {
 }	
 
 template<typename T, typename U>
-Edge<T, U>::~Edge() {
-	// beg = ?
-	// end = ?
-	flag = 0;
-	cost = 0;
-}
+Edge<T, U>::~Edge() {}
 
 template<typename T, typename U>
 Vertex<T> Edge<T, U>::get_beg() const { return beg; }
